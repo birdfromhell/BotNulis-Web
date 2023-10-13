@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Nulis Bot</title>
+<style>
+table {
+  width: 100%;
+}
+th, td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+</style>
+</head>
+<body>
+  <h1>Nulis Bot</h1>
+  <form id="nulisForm">
+    <label for="text">Teks:</label><br>
+    <textarea id="text" name="text"></textarea><br>
+    <input type="submit" value="Submit">
+  </form>
+  <table id="resultTable">
+      <tr>
+          <th>Error</th>
+          <th>File</th>
+      </tr>
+  </table>
+  <script>
+    document.getElementById('nulisForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      fetch('/write?text=' + encodeURIComponent(document.getElementById('text').value))
+        .then(response => response.json())
+        .then(data => {
+          let resultTable = document.getElementById('resultTable');
+          let newRow = resultTable.insertRow();
+
+          let cell1 = newRow.insertCell();
+          let cell2 = newRow.insertCell();
+
+          cell1.textContent = data.error;
+          cell2.textContent = data.file;
+        });
+    });
+  </script>
+</body>
+</html>
