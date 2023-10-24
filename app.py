@@ -1,8 +1,10 @@
 import BotNulis
 from flask import Flask, render_template, request, jsonify
+from flasgger import Swagger
 import time
 
 app = Flask(__name__)
+Swagger(app)
 waktuFile = time.strftime("%y%m%d-%H%M%S")
 
 
@@ -26,3 +28,9 @@ def write():
         return jsonify(result)
     else:
         return jsonify({'error': True, 'msg': 'Wajib menambahkan argument text '})
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
