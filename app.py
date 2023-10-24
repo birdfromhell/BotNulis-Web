@@ -1,36 +1,33 @@
 import BotNulis
-from flask import Flask, render_template, request, jsonify
-from flasgger import Swagger
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import HTMLResponse
+from typing import Optional
 import time
 
-app = Flask(__name__)
-Swagger(app)
+app = FastAPI()
 waktuFile = time.strftime("%y%m%d-%H%M%S")
 
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+@app.get("/", response_class=HTMLResponse)
+async def read_root():
+    with open("templates/index.html") as f:
+        html_content = f.read()
+    return html_content
 
 
-@app.route('/write')
-def write():
-    # Get the value if exists, else set a default
-    text = request.args.get('text', default='')
-    pkertas = int(request.args.get('kertas', default='1'))
-    pfont = int(request.args.get('font', default='1'))
-    header = request.args.get('header', default='')
-    tanggal = request.args.get('tanggal', default='')
-
-    if text:  # Check if text is not empty
-        bot = BotNulis.BotNulis(text, pkertas, pfont, header, tanggal)
+@app.get("/write")
+async def write(text: Optional[str] = '', kertas: Optional[int] = 1,
+                font: Optional[int] = 1, header: Optional[str] = '',
+                tanggal: Optional[str] = ''):
+    if text:
+        bot = BotNulis.BotNulis(text, kertas, font, header, tanggal)
         result = bot.start()
-        return jsonify(result)
+        return result
     else:
-        return jsonify({'error': True, 'msg': 'Wajib menambahkan argument text '})
+        raise HTTPException(status_code=400, detail="Missing 'text' parameter")
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    import uvicorn
 
-
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, log_level="info")
